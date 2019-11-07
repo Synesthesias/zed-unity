@@ -23,7 +23,7 @@ public class ZEDMirror : MonoBehaviour
 
     void Start()
     {
-        UnityEngine.VR.VRSettings.showDeviceView = false; //Turn off default behavior.
+        UnityEngine.XR.XRSettings.showDeviceView = false; //Turn off default behavior.
     }
 
     private void Update()

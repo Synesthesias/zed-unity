@@ -1,4 +1,4 @@
-﻿//======= Copyright (c) Stereolabs Corporation, All rights reserved. ===============
+//======= Copyright (c) Stereolabs Corporation, All rights reserved. ===============
 using UnityEngine;
 using UnityEditor;
 
@@ -39,6 +39,7 @@ public class ZEDCameraEditor : Editor
     private SerializedProperty streamPortProperty;
     //Tracking Prop
     private SerializedProperty enableTrackingProperty;
+    private SerializedProperty enablePositionTrackingProperty;
     private SerializedProperty enableSMProperty;
     private SerializedProperty pathSMProperty;
     private SerializedProperty estimateIPProperty;
@@ -184,6 +185,7 @@ public class ZEDCameraEditor : Editor
 
         //Tracking Serialized Property
         enableTrackingProperty = serializedObject.FindProperty("enableTracking");
+        enablePositionTrackingProperty = serializedObject.FindProperty("enablePositionTracking");
         enableSMProperty = serializedObject.FindProperty("enableSpatialMemory");
         pathSMProperty = serializedObject.FindProperty("pathSpatialMemory");
         estimateIPProperty = serializedObject.FindProperty("estimateInitialPosition");
@@ -375,6 +377,9 @@ public class ZEDCameraEditor : Editor
         GUIContent enableTrackingLabel = new GUIContent("Enable Tracking", "If enabled, the ZED will move/rotate itself using its own inside-out tracking. " +
         "If false, the camera tracking will move with the VR HMD if connected and available.");
         enableTrackingProperty.boolValue = EditorGUILayout.Toggle(enableTrackingLabel, enableTrackingProperty.boolValue);
+
+        GUIContent enablePositionTrackingLabel = new GUIContent("Enable Position Tracking", "If enabled, Camera_eyes local position will be updated every frame");
+        enablePositionTrackingProperty.boolValue = EditorGUILayout.Toggle(enablePositionTrackingLabel, enablePositionTrackingProperty.boolValue);
 
         GUIContent enableSMPropertyLabel = new GUIContent("Enable Spatial Memory", "Enables the spatial memory. Will detect and correct tracking drift by remembering features and anchors in the environment, "
         + "but may cause visible jumps when it happens");

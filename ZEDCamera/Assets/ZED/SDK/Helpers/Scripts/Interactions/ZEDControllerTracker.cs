@@ -170,7 +170,7 @@ public class ZEDControllerTracker : MonoBehaviour
         poseData.Clear(); //Reset the dictionary.
         poseData.Add(1, new List<TimedPoseData>()); //Create the list within the dictionary with its key and value.
         //Looking for the loaded device
-        loadeddevice = UnityEngine.VR.VRSettings.loadedDeviceName;
+        loadeddevice = UnityEngine.XR.XRSettings.loadedDeviceName;
 
         if (!zedManager)
         {
@@ -520,7 +520,7 @@ public class ZEDControllerTracker : MonoBehaviour
                             (zedManager != null && zedManager.IsStereoRig == true && !zedManager.transform.IsChildOf(transform)))
                         {
                             //Compensate for positional drift by measuring the distance between HMD and ZED rig root (the head's center). 
-                            Vector3 zedhmdposoffset = zedRigRoot.position - UnityEngine.VR.InputTracking.GetLocalPosition(UnityEngine.VR.VRNode.Head);
+                            Vector3 zedhmdposoffset = zedRigRoot.position - UnityEngine.XR.InputTracking.GetLocalPosition(UnityEngine.XR.XRNode.Head);
                             p.translation += zedhmdposoffset;
                         }
 

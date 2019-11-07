@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 using System.Threading;
-using UnityEngine.VR;
+using UnityEngine.XR;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -194,6 +194,14 @@ public class ZEDManager : MonoBehaviour
     /////////////////////////////////////////////////////////////////////////
     ///////////////////////// Motion Tracking ///////////////////////////////
     /////////////////////////////////////////////////////////////////////////
+    /// <summary>
+    /// If enabled, the ZED will move/rotate itself using its own inside-out tracking.
+    /// If false, the camera tracking will move with the VR HMD if connected and available.
+    /// <para>Normally, ZEDManager's GameObject will move according to the tracking. But if in AR pass-through mode, 
+    /// then the Camera_eyes object in ZED_Rig_Stereo will move while this object stays still. </para>
+    /// </summary>
+    [HideInInspector]
+    public bool enablePositionTracking = false;
 
     /// <summary>
     /// If enabled, the ZED will move/rotate itself using its own inside-out tracking.
@@ -308,7 +316,6 @@ public class ZEDManager : MonoBehaviour
     /// Gets a value indicating whether the spatial mapping display is enabled.
     /// </summary>
     public bool IsSpatialMappingDisplay { get { return spatialMapping != null ? spatialMapping.display : false; } }
-
 
     /////////////////////////////////////////////////////////////////////////
     ///////////////////////////// Rendering ///////////////////////////////////
@@ -839,6 +846,10 @@ public class ZEDManager : MonoBehaviour
     /// </summary>
     private Camera cameraRight;
 
+    public void SetZedRigRootPosition(Vector3 pos) {
+        if(this.enablePositionTracking)
+            this.zedRigRoot.localPosition = pos;
+    }
 
     /// <summary>
     /// Gets the center transform, which is the transform moved by the tracker in AR mode. 
@@ -1032,7 +1043,7 @@ public class ZEDManager : MonoBehaviour
     {
         zedRigRoot = gameObject.transform; //The object moved by tracking. By default it's this Transform. May get changed. 
 
-        bool devicePresent = UnityEngine.VR.VRDevice.isPresent; //May not need. 
+        bool devicePresent = UnityEngine.XR.XRDevice.isPresent; //May not need. 
 
         //Set first left eye
         Component[] cams = gameObject.GetComponentsInChildren<Camera>();
@@ -1090,13 +1101,13 @@ public class ZEDManager : MonoBehaviour
 
         if (camLeftTransform && camRightTransform && cameraLeft.stereoTargetEye == StereoTargetEyeMask.Left) //We found both a left- and right-eye camera. 
         {
-            isStereoRig = UnityEngine.VR.VRDevice.isPresent;
+            isStereoRig = UnityEngine.XR.XRDevice.isPresent;
             if (camLeftTransform.transform.parent != null)
             {
                 zedRigRoot = camLeftTransform.parent; //Make the camera's parent object (Camera_eyes in the ZED_Rig_Stereo prefab) the new zedRigRoot to be tracked. 
             }
 
-            if (UnityEngine.VR.VRDevice.isPresent)
+            if (UnityEngine.XR.XRDevice.isPresent)
             {
                 isStereoRig = true;
             }
@@ -1344,7 +1355,7 @@ public class ZEDManager : MonoBehaviour
             initParameters.depthMinimumDistance = 0.1f; //Allow depth calculation to very close objects. 
 
             //For the Game/output window, mirror the headset view using a custom script that avoids stretching. 
-            CreateMirror();
+            //CreateMirror();
         }
 
         //Starts a coroutine that initializes the ZED without freezing the game. 
@@ -1498,7 +1509,7 @@ public class ZEDManager : MonoBehaviour
     void AdjustZEDRigCameraPosition()
     {
         Vector3 rightCameraOffset = new Vector3(zedCamera.Baseline, 0.0f, 0.0f);
-        if (isStereoRig && VRDevice.isPresent) //Using AR pass-through mode. 
+        if (isStereoRig && UnityEngine.XR.XRDevice.isPresent) //Using AR pass-through mode. 
         {
             //zedRigRoot transform (origin of the global camera) is placed on the HMD headset. Therefore, we move the 
             //camera in front of it by offsetHmdZEDPosition to compensate for the ZED's position on the headset. 
@@ -1508,7 +1519,7 @@ public class ZEDManager : MonoBehaviour
             if (camRightTransform) camRightTransform.localPosition = camLeftTransform.localPosition + rightCameraOffset; //Space the eyes apart. 
             if (camRightTransform) camRightTransform.localRotation = camLeftTransform.localRotation;
         }
-        else if (isStereoRig && !VRDevice.isPresent) //Using stereo rig, but no VR headset. 
+        else if (isStereoRig && !UnityEngine.XR.XRDevice.isPresent) //Using stereo rig, but no VR headset. 
         {
             //When no VR HMD is available, simply put the origin at the left camera.
             if(camLeftTransform) camLeftTransform.localPosition = Vector3.zero;
@@ -1707,7 +1718,7 @@ public class ZEDManager : MonoBehaviour
             trackerThread.Join();
 
 
-        if (isStereoRig && VRDevice.isPresent)
+        if (isStereoRig && UnityEngine.XR.XRDevice.isPresent)
         {
             ZEDMixedRealityPlugin.Pose pose = arRig.InitTrackingAR();
             OriginPosition = pose.translation;
@@ -1723,7 +1734,8 @@ public class ZEDManager : MonoBehaviour
         }
 
         //Set the original transform for the Rig
-        zedRigRoot.localPosition = OriginPosition;
+        if (this.enablePositionTracking)
+            zedRigRoot.localPosition = OriginPosition;
         zedRigRoot.localRotation = OriginRotation;
 
         //Set confidence threshold if needed.
@@ -1821,7 +1833,8 @@ public class ZEDManager : MonoBehaviour
                             Debug.LogError("ZED Tracking disabled: Not available during SVO playback when Loop is enabled.");
                         }
                     }
-                    zedRigRoot.localPosition = initialPosition;
+                    if (this.enablePositionTracking)
+                        zedRigRoot.localPosition = initialPosition;
                     zedRigRoot.localRotation = initialRotation;
                 }
             }
@@ -1847,7 +1860,7 @@ public class ZEDManager : MonoBehaviour
 
             isCameraTracked = true;
 
-            if (VRDevice.isPresent && isStereoRig) //AR pass-through mode. 
+            if (UnityEngine.XR.XRDevice.isPresent && isStereoRig) //AR pass-through mode. 
             {
                 if (calibrationHasChanged) //If the HMD offset calibration file changed during runtime. 
                 {
@@ -1858,9 +1871,10 @@ public class ZEDManager : MonoBehaviour
                 arRig.ExtractLatencyPose(imageTimeStamp); //Find what HMD's pose was at ZED image's timestamp for latency compensation. 
                 arRig.AdjustTrackingAR(zedPosition, zedOrientation, out r, out v, setIMUPriorInAR);
                 zedRigRoot.localRotation = r;
-                zedRigRoot.localPosition = v;
+                if (this.enablePositionTracking)
+                    zedRigRoot.localPosition = v;
 
-                ZEDSyncPosition = v;
+                    ZEDSyncPosition = v;
                 ZEDSyncRotation = r;
                 HMDSyncPosition = arRig.LatencyPose().translation;
                 HMDSyncRotation = arRig.LatencyPose().rotation;
@@ -1868,17 +1882,30 @@ public class ZEDManager : MonoBehaviour
             else //Not AR pass-through mode. 
             {
                 zedRigRoot.localRotation = zedOrientation;
-                if (!ZEDSupportFunctions.IsVector3NaN(zedPosition))
-                    zedRigRoot.localPosition = zedPosition;
+                if (!ZEDSupportFunctions.IsVector3NaN(zedPosition)) {
+                    if (this.enablePositionTracking)
+                        zedRigRoot.localPosition = zedPosition;
+                }
             }
         }
-        else if (VRDevice.isPresent && isStereoRig) //ZED tracking is off but HMD tracking is on. Fall back to that. 
+        else if (UnityEngine.XR.XRDevice.isPresent && isStereoRig) //ZED tracking is off but HMD tracking is on. Fall back to that. 
         {
             isCameraTracked = true;
             arRig.ExtractLatencyPose(imageTimeStamp); //Find what HMD's pose was at ZED image's timestamp for latency compensation. 
+
             zedRigRoot.localRotation = arRig.LatencyPose().rotation;
-            zedRigRoot.localPosition = arRig.LatencyPose().translation;
-        }
+            if (this.enablePositionTracking)
+                zedRigRoot.localPosition = arRig.LatencyPose().translation;
+            /*
+            Vector3 headPosition;
+            InputDevices.GetDeviceAtXRNode(XRNode.CenterEye).TryGetFeatureValue(CommonUsages.centerEyePosition, out headPosition);
+            Quaternion headRotation;
+            InputDevices.GetDeviceAtXRNode(XRNode.CenterEye).TryGetFeatureValue(CommonUsages.centerEyeRotation, out headRotation);
+            if (this.enablePositionTracking)
+                zedRigRoot.localPosition = headPosition;
+            zedRigRoot.localRotation = headRotation;
+            */
+            }
         else //The ZED is not tracked by itself or an HMD. 
             isCameraTracked = false;
     }
@@ -1890,7 +1917,7 @@ public class ZEDManager : MonoBehaviour
     /// </summary>
     void UpdateHmdPose()
     {
-        if (IsStereoRig && VRDevice.isPresent)
+        if (IsStereoRig && UnityEngine.XR.XRDevice.isPresent)
             arRig.CollectPose(); //Save headset pose with current timestamp. 
     }
 
@@ -1933,7 +1960,7 @@ public class ZEDManager : MonoBehaviour
 
             if (isZEDTracked)
                 trackingState = ZEDTrackingState.ToString();
-            else if (VRDevice.isPresent && isStereoRig)
+            else if (UnityEngine.XR.XRDevice.isPresent && isStereoRig)
                 trackingState = "HMD Tracking";
             else
                 trackingState = "Camera Not Tracked";
@@ -2187,8 +2214,8 @@ public class ZEDManager : MonoBehaviour
 
 
         ZEDMixedRealityPlugin.OnHmdCalibChanged += CalibrationHasChanged;
-        if (UnityEngine.VR.VRDevice.isPresent)
-            HMDDevice = UnityEngine.VR.VRDevice.model;
+        if (UnityEngine.XR.XRDevice.isPresent)
+            HMDDevice = UnityEngine.XR.XRDevice.model;
 
 
         return zedRigDisplayer;
