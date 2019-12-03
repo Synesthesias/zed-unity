@@ -352,6 +352,7 @@ public class ZEDManager : MonoBehaviour
     /// Brightness of the final real-world image. Default is 100. Lower to darken the environment in a realistic-looking way. 
     /// This is a rendering setting that doesn't affect the raw input from the camera.
     /// </summary>
+
     public int CameraBrightness
     {
         get { return m_cameraBrightness; }
@@ -515,7 +516,7 @@ public class ZEDManager : MonoBehaviour
     /// Event fired when the max depth setting is changed. Used to update shader properties. 
     /// </summary>
     public event onMaxDepthChangeDelegate OnMaxDepthChange;
-
+    
     /// <summary>
     /// Whether to show the hidden camera rig used in stereo AR mode to prepare images for HMD output. 
     /// </summary>
@@ -1341,7 +1342,6 @@ public class ZEDManager : MonoBehaviour
 
         versionZED = "[SDK]: " + sl.ZEDCamera.GetSDKVersion().ToString() + " [Plugin]: " + sl.ZEDCamera.PluginVersion.ToString();
 
-
         //Behavior specific to AR pass-through mode. 
         if (isStereoRig)
         {
@@ -2138,7 +2138,7 @@ public class ZEDManager : MonoBehaviour
         meshLeftScreen.receiveShadows = false;
         meshLeftScreen.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
         meshLeftScreen.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        meshLeftScreen.sharedMaterial = Resources.Load("Materials/Unlit/Mat_ZED_Unlit") as Material;
+        meshLeftScreen.sharedMaterial = Resources.Load("Materials/Unlit/Mat_ZED_Unlit_Alpha") as Material;
         leftScreen.layer = arLayer;
         GameObject.Destroy(leftScreen.GetComponent<MeshCollider>());
 
@@ -2151,7 +2151,7 @@ public class ZEDManager : MonoBehaviour
         meshRightScreen.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
         meshRightScreen.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         GameObject.Destroy(rightScreen.GetComponent<MeshCollider>());
-        meshRightScreen.sharedMaterial = Resources.Load("Materials/Unlit/Mat_ZED_Unlit") as Material;
+        meshRightScreen.sharedMaterial = Resources.Load("Materials/Unlit/Mat_ZED_Unlit_Alpha") as Material;
         rightScreen.layer = arLayer;
 
         /*Camera left and right*/
@@ -2160,8 +2160,8 @@ public class ZEDManager : MonoBehaviour
         Camera camL = camLeft.AddComponent<Camera>();
         camL.stereoTargetEye = StereoTargetEyeMask.Both; //Temporary setting to fix loading screen issue.
         camL.renderingPath = RenderingPath.Forward;//Minimal overhead
-        camL.clearFlags = CameraClearFlags.Color;
-        camL.backgroundColor = Color.black;
+        camL.clearFlags = CameraClearFlags.Depth;
+        //camL.backgroundColor = Color.black;
         camL.cullingMask = 1 << arLayer;
         camL.allowHDR = false;
         camL.allowMSAA = false;
@@ -2171,8 +2171,8 @@ public class ZEDManager : MonoBehaviour
         camRight.transform.SetParent(zedRigDisplayer.transform);
         Camera camR = camRight.AddComponent<Camera>();
         camR.renderingPath = RenderingPath.Forward;//Minimal overhead
-        camR.clearFlags = CameraClearFlags.Color;
-        camR.backgroundColor = Color.black;
+        camR.clearFlags = CameraClearFlags.Depth;
+        //camR.backgroundColor = Color.black;
         camR.stereoTargetEye = StereoTargetEyeMask.Both; //Temporary setting to fix loading screen issue.
         camR.cullingMask = 1 << arLayer;
         camR.allowHDR = false;
