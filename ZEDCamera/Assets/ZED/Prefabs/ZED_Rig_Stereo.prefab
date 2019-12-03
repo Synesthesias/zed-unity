@@ -30,6 +30,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4203509225118982686}
+  - {fileID: 4203509223494261775}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -152,8 +153,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4203509225118982686}
-  m_RootOrder: 2
+  m_Father: {fileID: 4203509224739796688}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &4203509223494261769
 Camera:
@@ -229,7 +230,6 @@ Transform:
   m_Children:
   - {fileID: 3642568786506821236}
   - {fileID: 7800096479406330627}
-  - {fileID: 4203509223494261775}
   m_Father: {fileID: 4203509224739796688}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
