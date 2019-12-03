@@ -2286,6 +2286,57 @@ public class ZEDManager : MonoBehaviour
     }
 
 
+    #region FADE
+    public void FadeIn()
+    {
+        StartCoroutine(_FadeIn());
+    }
+
+    public void FadeOut()
+    {
+        StartCoroutine(_FadeOut());
+    }
+
+    private IEnumerator _FadeIn()
+    {
+        float a = 0.0f;
+        while (a <= 1.0f)
+        {
+            a += Time.deltaTime;
+            SetAlpha(a);
+            yield return null;
+        }
+        SetAlpha(1.0f);
+        yield break;
+    }
+
+    private IEnumerator _FadeOut()
+    {
+        float a = 1.0f;
+        while (a >= 0.0f)
+        {
+            a -= Time.deltaTime;
+            SetAlpha(a);
+            yield return null;
+        }
+        SetAlpha(0.0f);
+        yield break;
+    }
+
+    private void SetAlpha(float alpha)
+    {
+        try
+        {
+            FindObjectOfType<ZEDMixedRealityPlugin>().leftMaterial.SetFloat("_Alpha", alpha);
+            FindObjectOfType<ZEDMixedRealityPlugin>().rightMaterial.SetFloat("_Alpha", alpha);
+        }
+        catch
+        {
+
+        }
+    }
+    #endregion
+
     #region EventHandler
     /// <summary>
     /// Changes the real-world brightness by setting the brightness value in the shaders.
