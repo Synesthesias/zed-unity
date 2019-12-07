@@ -1216,6 +1216,13 @@ public class ZEDManager : MonoBehaviour
 
     }
 
+    //Called by Scene UnLoad
+    void OnSceneUnloaded(UnityEngine.SceneManagement.Scene current) {
+        //CloseManager();
+        Debug.Log("scene unloaded");
+    }
+
+
     private void CloseManager()
     {
         if (spatialMapping != null)
@@ -1371,6 +1378,14 @@ public class ZEDManager : MonoBehaviour
         //Create the spatial mapping module object (even if not used necessarly)
         spatialMapping = new ZEDSpatialMapping(transform, this);
 
+        //Reset Settings
+        
+        //Plane Fadein
+        this.FadeIn();
+
+        //Add Event On Scene Unloaded
+        //UnityEngine.SceneManagement.SceneManager.sceneUnloaded += OnSceneUnloaded;
+
     }
 
 
@@ -1493,6 +1508,8 @@ public class ZEDManager : MonoBehaviour
 
             zedReady = true;
             isDisconnected = false; //In case we just regained connection.
+
+            this.zedCamera.ResetCameraSettings();
 
             setRenderingSettings(); //Find the ZEDRenderingPlanes in the rig and configure them. 
             AdjustZEDRigCameraPosition(); //If in AR mode, move cameras to proper offset relative to zedRigRoot.
