@@ -1379,7 +1379,9 @@ public class ZEDManager : MonoBehaviour
         spatialMapping = new ZEDSpatialMapping(transform, this);
 
         //Reset Settings
+
         
+
         //Plane Fadein
         this.FadeIn();
 
@@ -1511,6 +1513,19 @@ public class ZEDManager : MonoBehaviour
 
             this.zedCamera.ResetCameraSettings();
 
+            if(PlayerPrefs.GetInt("NIGHT_MODE", 0) == 0)
+            {
+                this.zedCamera.SetCameraSettings(sl.CAMERA_SETTINGS.BRIGHTNESS, 8, false);
+                this.zedCamera.SetCameraSettings(sl.CAMERA_SETTINGS.CONTRAST, 3, false);
+                this.zedCamera.SetCameraSettings(sl.CAMERA_SETTINGS.GAIN, 100, false);
+                this.zedCamera.SetCameraSettings(sl.CAMERA_SETTINGS.EXPOSURE, 100, false);
+            }
+            else
+            {
+                this.zedCamera.SetCameraSettings(sl.CAMERA_SETTINGS.BRIGHTNESS, 4, true);
+                this.zedCamera.SetCameraSettings(sl.CAMERA_SETTINGS.CONTRAST, 4, true);
+            }
+
             setRenderingSettings(); //Find the ZEDRenderingPlanes in the rig and configure them. 
             AdjustZEDRigCameraPosition(); //If in AR mode, move cameras to proper offset relative to zedRigRoot.
         }
@@ -1611,9 +1626,9 @@ public class ZEDManager : MonoBehaviour
         }
 
     }
-    #endregion
+#endregion
 
-    #region IMAGE_ACQUIZ
+#region IMAGE_ACQUIZ
     /// <summary>
     /// Continuously grabs images from the ZED. Runs on its own thread. 
     /// </summary>
@@ -1707,7 +1722,7 @@ public class ZEDManager : MonoBehaviour
             Thread.Sleep(1);
         }
     }
-    #endregion
+#endregion
 
     /// <summary>
     /// Initialize the SVO, and launch the thread to initialize tracking. Called once the ZED
@@ -1812,7 +1827,7 @@ public class ZEDManager : MonoBehaviour
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////// ENGINE UPDATE REGION   /////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    #region ENGINE_UPDATE
+#region ENGINE_UPDATE
     /// <summary>
     /// If a new frame is available, this function retrieves the images and updates the Unity textures. Called in Update().
     /// </summary>
@@ -1944,7 +1959,6 @@ public class ZEDManager : MonoBehaviour
     /// </summary>
 	void Update()
     {
-
         //Check if ZED is disconnected; invoke event and call function if so. 
         if (isDisconnected)
         {
@@ -1962,6 +1976,18 @@ public class ZEDManager : MonoBehaviour
         UpdateTracking(); //Apply position/rotation changes to zedRigRoot. 
         UpdateMapping(); //Update mapping if activated
 
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.N))
+        {
+            Debug.Log("set night mode");
+            PlayerPrefs.SetInt("NIGHT_MODE", 1);
+            PlayerPrefs.Save();
+        }
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.D))
+        {
+            Debug.Log("set day mode");
+            PlayerPrefs.SetInt("NIGHT_MODE", 0);
+            PlayerPrefs.Save();
+        }
 
         /// If in Unity Editor, update the ZEDManager status list
 #if UNITY_EDITOR
@@ -1993,7 +2019,7 @@ public class ZEDManager : MonoBehaviour
             arRig.LateUpdateHmdRendering(); //Update textures on final AR rig for output to the headset. 
         }
     }
-    #endregion
+#endregion
 
     /// <summary>
     /// Event called when camera is disconnected
@@ -2015,12 +2041,12 @@ public class ZEDManager : MonoBehaviour
         CloseManager();
     }
 
-
+    
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////// SPATIAL MAPPING REGION   /////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    #region MAPPING_MODULE
+#region MAPPING_MODULE
     /// <summary>
     /// Tells ZEDSpatialMapping to begin a new scan. This clears the previous scan from the scene if there is one. 
     /// </summary>
@@ -2119,14 +2145,14 @@ public class ZEDManager : MonoBehaviour
         saveMeshWhenOver = oldSaveWhenOver; //Restoring old setting.
         return loadresult;
     }
-    #endregion
+#endregion
 
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////// AR REGION //////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    #region AR_CAMERAS
+#region AR_CAMERAS
     /// <summary>
     /// Stereo rig that adjusts images from ZED_Rig_Stereo to look correct in the HMD. 
     /// <para>Hidden by default as it rarely needs to be changed.</para>
@@ -2238,9 +2264,9 @@ public class ZEDManager : MonoBehaviour
         return zedRigDisplayer;
     }
 
-    #endregion
+#endregion
 
-    #region MIRROR
+#region MIRROR
     private ZEDMirror mirror = null;
     private GameObject mirrorContainer = null;
     void CreateMirror()
@@ -2276,7 +2302,7 @@ public class ZEDManager : MonoBehaviour
 
         camL.depth = cameraLeft.GetComponent<Camera>().depth; //Make sure it renders after the left cam so we can copy texture from latest frame. 
     }
-    #endregion
+#endregion
 
     /// <summary>
     /// Closes out the current stream, then starts it up again while maintaining tracking data. 
@@ -2303,7 +2329,7 @@ public class ZEDManager : MonoBehaviour
     }
 
 
-    #region FADE
+#region FADE
     public void FadeIn()
     {
         StartCoroutine(_FadeIn());
@@ -2352,9 +2378,9 @@ public class ZEDManager : MonoBehaviour
 
         }
     }
-    #endregion
+#endregion
 
-    #region EventHandler
+#region EventHandler
     /// <summary>
     /// Changes the real-world brightness by setting the brightness value in the shaders.
     /// </summary>
@@ -2416,7 +2442,7 @@ public class ZEDManager : MonoBehaviour
     {
         calibrationHasChanged = true;
     }
-    #endregion
+#endregion
 
 
 
