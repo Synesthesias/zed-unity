@@ -1383,7 +1383,7 @@ public class ZEDManager : MonoBehaviour
         
 
         //Plane Fadein
-        this.FadeIn();
+        this.FadeIn(2.0f);
 
         //Add Event On Scene Unloaded
         //UnityEngine.SceneManagement.SceneManager.sceneUnloaded += OnSceneUnloaded;

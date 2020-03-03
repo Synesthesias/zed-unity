@@ -8,11 +8,11 @@ public class FadeTest : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            FindObjectOfType<ZEDManager>().FadeIn();
+            FindObjectOfType<ZEDManager>().FadeIn(2.0f);
         }
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            FindObjectOfType<ZEDManager>().FadeOut();
+            FindObjectOfType<ZEDManager>().FadeOut(2.0f);
         }
     }
 }
