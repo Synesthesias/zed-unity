@@ -2330,22 +2330,22 @@ public class ZEDManager : MonoBehaviour
 
 
 #region FADE
-    public void FadeIn()
+    public void FadeIn(float fadeTime)
     {
-        StartCoroutine(_FadeIn());
+        StartCoroutine(_FadeIn(fadeTime));
     }
 
-    public void FadeOut()
+    public void FadeOut(float fadeTime)
     {
-        StartCoroutine(_FadeOut());
+        StartCoroutine(_FadeOut(fadeTime));
     }
 
-    private IEnumerator _FadeIn()
+    private IEnumerator _FadeIn(float _fadeTime)
     {
         float a = 0.0f;
         while (a <= 1.0f)
         {
-            a += Time.deltaTime;
+            a += Time.deltaTime / _fadeTime;
             SetAlpha(a);
             yield return null;
         }
@@ -2353,12 +2353,12 @@ public class ZEDManager : MonoBehaviour
         yield break;
     }
 
-    private IEnumerator _FadeOut()
+    private IEnumerator _FadeOut(float _fadeTime)
     {
         float a = 1.0f;
         while (a >= 0.0f)
         {
-            a -= Time.deltaTime;
+            a -= Time.deltaTime / _fadeTime;
             SetAlpha(a);
             yield return null;
         }
