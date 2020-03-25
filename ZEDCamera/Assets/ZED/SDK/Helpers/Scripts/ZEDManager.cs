@@ -1513,7 +1513,7 @@ public class ZEDManager : MonoBehaviour
 
             this.zedCamera.ResetCameraSettings();
 
-            if(PlayerPrefs.GetInt("NIGHT_MODE", 0) == 0)
+            if(PlayerPrefs.GetInt("NIGHT_MODE", 0) == 1)
             {
                 this.zedCamera.SetCameraSettings(sl.CAMERA_SETTINGS.BRIGHTNESS, 8, false);
                 this.zedCamera.SetCameraSettings(sl.CAMERA_SETTINGS.CONTRAST, 3, false);
